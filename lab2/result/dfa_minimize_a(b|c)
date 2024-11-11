@@ -1,0 +1,10 @@
+digraph {
+	"" [shape=none]
+	"" -> S33 [label=start]
+	S33 [shape=circle]
+	S33 -> S35 [label=a]
+	S34 [shape=doublecircle]
+	S35 [shape=circle]
+	S35 -> S34 [label=b]
+	S35 -> S34 [label=c]
+}

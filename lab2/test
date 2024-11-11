@@ -1,0 +1,7 @@
+digraph {
+	"" [shape=none]
+	"" -> S101 [label=start]
+	S101 [shape=circle]
+	S101 -> S102 [label=c]
+	S102 [shape=doublecircle]
+}

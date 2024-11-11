@@ -57,17 +57,21 @@ class DFA:
     def visualize(self, filename:str):
         """使用Graphviz可视化DFA"""
         dot = graphviz.Digraph()
+        dot.node("", shape="none")
+        dot.edge("", str(self.start_state), label='start')
         for state in self.states:
             shape = 'doublecircle' if state in self.accept_states else 'circle'
             dot.node(str(state), shape=shape)
             for char, next_states in state.transitions.items():
                 for next_state in next_states:
                     dot.edge(str(state), str(next_state), label=str(char))
-        dot.render('output/' + filename, view=False)
+        dot.render(filename, format="png", view=False)
 
 
     def minimize(self):
         """使用Hopcroft算法求异法最小化DFA"""
+        symbols = {symbol for state in self.states for symbol in state.transitions}
+
         accept = frozenset(self.accept_states)
         non_accept = frozenset(self.states) - accept
         P = {accept, non_accept}
@@ -75,16 +79,13 @@ class DFA:
 
         while W:
             A = W.pop()
-            for symbol in {sym for state in self.states for sym in state.transitions}:
-                X = set()
-                for state in self.states:
-                    if any(s in A for s in state.transitions.get(symbol, [])):
-                        X.add(state)
+            for symbol in symbols:
+                X = {state for state in self.states if any(next_state in A for next_state in state.transitions.get(symbol, []))}
                 if not X:
                     continue
 
-                for Y in list(P):
-                    intersection = X & Y
+                for Y in P.copy():
+                    intersection = Y & X
                     difference = Y - X
                     if intersection and difference:
                         P.remove(Y)
@@ -95,24 +96,25 @@ class DFA:
                             W.add(frozenset(intersection))
                             W.add(frozenset(difference))
                         else:
-                            W.add(frozenset(intersection if len(intersection) <= len(difference) else difference))
+                            if len(intersection) <= len(difference):
+                                W.add(frozenset(intersection))
+                            else:
+                                W.add(frozenset(difference))
 
-        # Create new states based on the final partition
+
         new_states = {frozenset(group): State() for group in P}
         new_start_state = next(new_states[group] for group in P if self.start_state in group)
         new_accept_states = {new_states[group] for group in P if any(s in accept for s in group)}
 
-        # Rebuild transitions for the new states
         for group, new_state in new_states.items():
-            representative = next(iter(group))
-            for sym, destinations in representative.transitions.items():
-                dest_group = next(g for g in P if any(d in g for d in destinations))
-                new_state.add_transition(sym, new_states[dest_group])
+            for state in group:
+                for sym, destinations in state.transitions.items():
+                    dest_group = next(g for g in P if any(d in g for d in destinations))
+                    if new_states[dest_group] not in new_state.transitions.get(sym, []):
+                        new_state.add_transition(sym, new_states[dest_group])
 
-        self.states = list(new_states.values())
-        self.start_state = new_start_state
-        self.accept_states = list(new_accept_states)
-
-        # Update state names for clarity
-        for i, state in enumerate(self.states):
-            state.name = f"S{i}"
+        new_dfa = DFA()
+        new_dfa.states = list(new_states.values())
+        new_dfa.start_state = new_start_state
+        new_dfa.accept_states = list(new_accept_states)
+        return new_dfa
