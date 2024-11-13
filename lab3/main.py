@@ -10,15 +10,13 @@ def main():
 
     cfg.eliminate_left_recursion()
     cfg.extract_left_common_factors()
-    cfg.compute_firstSets()
-    cfg.compute_followSets()
-    cfg.construct_predictive_table()
 
-    print("文法是否满足LL(1):", cfg.is_ll1())
     print("\n处理后的文法:")
     cfg.display()
 
-    print("输入串:")
+    print("文法是否满足LL(1):", cfg.is_ll1())
+    cfg.construct_predictive_table()
+
     while True:
         try:
             inputStr = input("请输入待分析串:").strip()

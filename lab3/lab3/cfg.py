@@ -110,7 +110,7 @@ class CFG:
                 for prod in recursiveProductions:
                     prod.append(newNonterminalSym)
                 recursiveProductions.append(["ε"])
-                self.grammar[newNonterminalSym] = recursiveProductions
+                self.add_rule(newNonterminalSym, recursiveProductions)
             else:
                 self.grammar[nonterminalSym] = nonrecursiveProductions
 
