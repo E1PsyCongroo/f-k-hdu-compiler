@@ -235,3 +235,100 @@ def test_compute_follow3():
     assert len(followSets) == len(expectedFollowSets)
     for nonterminalSym in expectedFollowSets.keys():
         assert followSets[nonterminalSym] == expectedFollowSets[nonterminalSym]
+
+
+def test_is_ll1_1():
+    cfg = CFG(False)
+
+    cfg.set_start("S")
+    cfg.add_rule("S", [["a", "A", "S"]])
+    cfg.add_rule("S", [["b"]])
+    cfg.add_rule("A", [["b", "A"]])
+    cfg.add_rule("A", [["ε"]])
+
+    print("文法:")
+    cfg.display()
+
+    print("SELECT 集:")
+    for nonterminalSym, productions in cfg.grammar.items():
+        for prod in productions:
+            selectSet = cfg.compute_select_of_production(nonterminalSym, prod)
+            print(
+                f"SELECT({nonterminalSym} -> {" ".join(prod)}) = {{{", ".join(selectSet)}}}"
+            )
+
+    assert cfg.is_ll1() == False
+
+
+def test_is_ll1_2():
+    cfg = CFG(False)
+
+    cfg.set_start("E")
+    cfg.add_rule("E", [["T", "E'"]])
+    cfg.add_rule("E'", [["+", "T", "E'"], ["ε"]])
+    cfg.add_rule("T", [["F", "T'"]])
+    cfg.add_rule("T'", [["*", "F", "T'"], ["ε"]])
+    cfg.add_rule("F", [["(", "E", ")"], ["id"]])
+
+    print("文法:")
+    cfg.display()
+
+    print("SELECT 集:")
+    for nonterminalSym, productions in cfg.grammar.items():
+        for prod in productions:
+            selectSet = cfg.compute_select_of_production(nonterminalSym, prod)
+            print(
+                f"SELECT({nonterminalSym} -> {" ".join(prod)}) = {{{", ".join(selectSet)}}}"
+            )
+
+    assert cfg.is_ll1() == True
+
+
+def test_construct_predictive_table1():
+    cfg = CFG(False)
+
+    cfg.set_start("S")
+    cfg.add_rule("S", [["A", "B"]])
+    cfg.add_rule("A", [["a", "A"], ["ε"]])
+    cfg.add_rule("B", [["b"]])
+
+    print("文法:")
+    cfg.display()
+
+    print("SELECT 集:")
+    for nonterminalSym, productions in cfg.grammar.items():
+        for prod in productions:
+            selectSet = cfg.compute_select_of_production(nonterminalSym, prod)
+            print(
+                f"SELECT({nonterminalSym} -> {" ".join(prod)}) = {{{", ".join(selectSet)}}}"
+            )
+
+    print("预测分析表:")
+    predictiveTable = cfg.construct_predictive_table()
+    print(predictiveTable)
+
+
+def test_construct_predictive_table2():
+    cfg = CFG(False)
+
+    cfg.set_start("S")
+    cfg.add_rule("S", [["i", "E", "t", "S", "S'"], ["a"]])
+    cfg.add_rule("S'", [["e", "S"], ["ε"]])
+    cfg.add_rule("E", [["b"]])
+
+    print("文法:")
+    cfg.display()
+
+    print("SELECT 集:")
+    for nonterminalSym, productions in cfg.grammar.items():
+        for prod in productions:
+            selectSet = cfg.compute_select_of_production(nonterminalSym, prod)
+            print(
+                f"SELECT({nonterminalSym} -> {" ".join(prod)}) = {{{", ".join(selectSet)}}}"
+            )
+
+    print("预测分析表:")
+    predictiveTable = cfg.construct_predictive_table()
+    print(predictiveTable)
+
+    assert cfg.is_ll1() == False

@@ -1,2 +1,4 @@
+S
 S -> a p p l e | a p p l y | a p p l i c a t i o n | b a l l | b a t | b a t h | X b
 X -> a b | a c | a d
+END
