@@ -3,3 +3,5 @@ S -> S + T | T
 T -> T * F | F
 F -> ( E ) | id
 END
+
+id + id * id

@@ -100,7 +100,7 @@ class CFG:
                 else:
                     nonrecursiveProductions.append(newProd)
 
-            # 处理直接左递归
+            # 处理左递归
             if recursiveProductions:
                 # 新非终结符号
                 newNonterminalSym = f"{nonterminalSym}'"
@@ -178,20 +178,6 @@ class CFG:
 
         return self.firstSets[symbol]
 
-    def compute_first_of_production(self, production: list[str]) -> set[str]:
-        firstSet: set[str] = set()
-        for symbol in production:
-            first = self.compute_first(symbol)
-            if "ε" not in first:
-                firstSet.update(first)
-                break
-            elif symbol == production[-1]:
-                firstSet.update(first)
-            else:
-                firstSet.update(first - {"ε"})
-
-        return firstSet
-
     def compute_firstSets(self) -> dict[str, set[str]]:
         """计算 FIRST 集"""
         if self.firstSets:
@@ -249,6 +235,21 @@ class CFG:
 
         return self.followSets
 
+    def compute_first_of_production(self, production: list[str]) -> set[str]:
+        """计算某个产生式的 FIRST 集"""
+        firstSet: set[str] = set()
+        for symbol in production:
+            first = self.compute_first(symbol)
+            if "ε" not in first:
+                firstSet.update(first)
+                break
+            elif symbol == production[-1]:
+                firstSet.update(first)
+            else:
+                firstSet.update(first - {"ε"})
+
+        return firstSet
+
     def compute_select_of_production(
         self, nonterminalSym: str, production: list[str]
     ) -> set[str]:
@@ -283,7 +284,9 @@ class CFG:
     def construct_predictive_table(self) -> dict[str, dict[str, list[list[str]]]]:
         """构造 LL(1) 预测分析表"""
         self.predictiveTable = {
-            nonterminal: {terminal: [] for terminal in self.terminalSyms | {"$"}}
+            nonterminal: {
+                terminal: [] for terminal in self.terminalSyms - {"ε"} | {"$"}
+            }
             for nonterminal in self.grammar.keys()
         }
 
@@ -328,7 +331,7 @@ class CFG:
                 else:
                     return False
 
-            print(f"分析栈: {list(reversed(stack))}, 输入串: '{" ".join(inputStr)}', 动作: {action}")
+            print(f"分析栈: {stack}, 输入串: '{" ".join(inputStr)}', 动作: {action}")
 
         return True
 

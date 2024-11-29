@@ -307,6 +307,7 @@ def test_construct_predictive_table1():
     predictiveTable = cfg.construct_predictive_table()
     print(predictiveTable)
 
+    assert cfg.is_ll1() == True
 
 def test_construct_predictive_table2():
     cfg = CFG(False)

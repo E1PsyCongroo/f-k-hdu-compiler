@@ -11,11 +11,11 @@ def main():
     cfg.eliminate_left_recursion()
     cfg.extract_left_common_factors()
 
-    print("\n处理后的文法:")
-    cfg.display()
-
     print("文法是否满足LL(1):", cfg.is_ll1())
     cfg.construct_predictive_table()
+
+    print("\n处理后的文法:")
+    cfg.display()
 
     while True:
         try:
